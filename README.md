@@ -5,7 +5,7 @@ These instruction use [minikube](https://minikube.sigs.k8s.io/) but should work 
 You can host a .NET sample with a [few quick commands](hello-dotnet/README.md) at localhost:8080:
 
 ```bash
-kubectl apply -f hello-dotnet.yaml
+kubectl apply -f https://raw.githubusercontent.com/richlander/dotnet-k8s/main/hello-dotnet/hello-dotnet.yaml
 kubectl port-forward service/hello-dotnet 8080:80
 ```
 
