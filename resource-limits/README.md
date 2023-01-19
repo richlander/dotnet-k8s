@@ -18,6 +18,14 @@ Create a proxy to the service. View the sample app at http://localhost:8080/.
 kubectl port-forward service/hello-dotnet 8080:80
 ```
 
+Check performance metrics:
+
+```bash
+kubectl top pod
+```
+
+Note: `top` requires installing the [metrics server](https://github.com/kubernetes-sigs/metrics-server), which can be done via [minikube addons](https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/).
+
 View the active resources that have been deployed and then delete them.
 
 ```bash

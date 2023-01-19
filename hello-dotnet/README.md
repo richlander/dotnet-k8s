@@ -1,4 +1,4 @@
-# `hello-dotnet` single node app
+# Single node app
 
 Host a .NET sample with a few quick commands.
 
