@@ -41,6 +41,15 @@ Second terminal:
 
 ```bash
 $ kubectl get -w po
+NAME                            READY   STATUS    RESTARTS   AGE
+hello-dotnet-6fd9fc7cd8-msj9g   0/1     Pending   0          0s
+hello-dotnet-6fd9fc7cd8-msj9g   0/1     Pending   0          0s
+hello-dotnet-6fd9fc7cd8-msj9g   0/1     ContainerCreating   0          0s
+hello-dotnet-6fd9fc7cd8-msj9g   1/1     Running             0          3s
+hello-dotnet-6fd9fc7cd8-msj9g   1/1     Terminating         0          74s
+hello-dotnet-6fd9fc7cd8-znmfj   0/1     Pending             0          0s
+hello-dotnet-6fd9fc7cd8-znmfj   0/1     Pending             0          0s
+hello-dotnet-6fd9fc7cd8-znmfj   0/1     ContainerCreating   0          0s
 ```
 
 Third terminal:
@@ -48,8 +57,8 @@ Third terminal:
 ```bash
 $ kubectl get po
 NAME                            READY   STATUS    RESTARTS   AGE
-hello-dotnet-6fd9fc7cd8-lhskf   1/1     Running   0          88s
-$ kubectl logs -f hello-dotnet-6fd9fc7cd8-lhskf
+hello-dotnet-6fd9fc7cd8-msj9g   1/1     Running   0          88s
+$ kubectl logs -f hello-dotnet-6fd9fc7cd8-msj9g
 warn: Microsoft.AspNetCore.DataProtection.Repositories.FileSystemXmlRepository[60]
       Storing keys in a directory '/root/.aspnet/DataProtection-Keys' that may not be persisted outside of the container. Protected data will be unavailable when container is destroyed.
 warn: Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager[35]
@@ -79,16 +88,39 @@ You have 50s to perform the task in the fifth terminal
 Fifth terminal:
 
 ```bash
-$ kubectl delete pod  hello-dotnet-6fd9fc7cd8-lhskf
-pod "hello-dotnet-6fd9fc7cd8-lhskf" deleted
+$ kubectl delete pod  hello-dotnet-6fd9fc7cd8-msj9g
+pod "hello-dotnet-6fd9fc7cd8-msj9g" deleted
 ```
 
-This command should take ~1s. Let's look back the ASP.NET Core logs. It gracefully shutdown immediately, enabling the pod to be recycled.
+This command should take ~1s.
+
+Let's look at the other terminal windows to see what happened.
+
+Second terminal:
+
+```bash
+$ kubectl get -w po
+NAME                            READY   STATUS    RESTARTS   AGE
+hello-dotnet-6fd9fc7cd8-msj9g   0/1     Pending   0          0s
+hello-dotnet-6fd9fc7cd8-msj9g   0/1     Pending   0          0s
+hello-dotnet-6fd9fc7cd8-msj9g   0/1     ContainerCreating   0          0s
+hello-dotnet-6fd9fc7cd8-msj9g   1/1     Running             0          3s
+hello-dotnet-6fd9fc7cd8-msj9g   1/1     Terminating         0          74s
+hello-dotnet-6fd9fc7cd8-znmfj   0/1     Pending             0          0s
+hello-dotnet-6fd9fc7cd8-znmfj   0/1     Pending             0          0s
+hello-dotnet-6fd9fc7cd8-znmfj   0/1     ContainerCreating   0          0s
+hello-dotnet-6fd9fc7cd8-msj9g   0/1     Terminating         0          76s
+hello-dotnet-6fd9fc7cd8-msj9g   0/1     Terminating         0          76s
+hello-dotnet-6fd9fc7cd8-msj9g   0/1     Terminating         0          76s
+hello-dotnet-6fd9fc7cd8-znmfj   1/1     Running             0          3s
+```
+
+The pod quickly recycled upon deletion.
 
 Third terminal:
 
 ```bash
-$ kubectl logs -f hello-dotnet-6fd9fc7cd8-lhskf
+$ kubectl logs -f hello-dotnet-6fd9fc7cd8-msj9g
 warn: Microsoft.AspNetCore.DataProtection.Repositories.FileSystemXmlRepository[60]
       Storing keys in a directory '/root/.aspnet/DataProtection-Keys' that may not be persisted outside of the container. Protected data will be unavailable when container is destroyed.
 warn: Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager[35]
@@ -105,6 +137,6 @@ warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]
       Failed to determine the https port for redirect.
 info: Microsoft.Hosting.Lifetime[0]
       Application is shutting down...
-rpc error: code = Unknown desc = Error: No such container: 2ceb69ed375013d8281cfe705d5935b0ce877f49f2ad9268c4cfdb9c16ff9
 ```
 
+ASP.NET Core gracefully shutdown.
