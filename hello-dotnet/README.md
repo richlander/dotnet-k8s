@@ -17,14 +17,15 @@ Alternatively, you can do the same with a few quick commands
 ```bash
 kubectl create deployment hello-dotnet --image mcr.microsoft.com/dotnet/samples:aspnetapp
 kubectl expose deployment hello-dotnet --type=NodePort --port=80
-kubectl port-forward service/hello-dotnet 8080:80
 ```
 
-Create a proxy to the service. View the sample app at http://localhost:8080/.
+Create a proxy to the service.
 
 ```bash
 kubectl port-forward service/hello-dotnet 8080:80
 ```
+
+View the sample app at http://localhost:8080/ or call `curl http://localhost:8080/Environment`.
 
 View the active resources that have been deployed and then delete them.
 

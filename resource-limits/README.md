@@ -6,7 +6,7 @@ Limit memory and CPU for an app.
 kubectl apply -f https://raw.githubusercontent.com/richlander/dotnet-k8s/main/resource-limits/resource-limits.yaml
 ```
 
-If you've cloned the repo, the local file can be applied instead:
+Apply the local file if you've cloned the repo.
 
 ```bash
 kubectl apply -f resource-limits.yaml
@@ -18,11 +18,13 @@ See resource limits for the deployment.
 kubectl describe deployment
 ```
 
-Create a proxy to the service. View the sample app at http://localhost:8080/.
+Create a proxy to the service.
 
 ```bash
 kubectl port-forward service/hello-dotnet 8080:80
 ```
+
+View the sample app at http://localhost:8080/ or call `curl http://localhost:8080/Environment`.
 
 Resources can be deleted using the following pattern:
 

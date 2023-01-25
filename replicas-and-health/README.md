@@ -6,7 +6,7 @@ Use multiple replicas and health checks for reliability.
 kubectl apply -f https://raw.githubusercontent.com/richlander/dotnet-k8s/main/replicas-and-health/replica-health.yaml
 ```
 
-If you've cloned the repo, the local file can be applied instead:
+Apply the local file if you've cloned the repo.
 
 ```bash
 kubectl apply -f replica-health.yaml

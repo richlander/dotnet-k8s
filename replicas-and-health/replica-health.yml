@@ -5,7 +5,7 @@ metadata:
   labels:
     app: aspnetapp
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: aspnetapp
@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: aspnetapp
-        image: richlander/aspnetapp:arm64v8 #mcr.microsoft.com/dotnet/samples:aspnetapp
+        image: richlander/aspnetapp #mcr.microsoft.com/dotnet/samples:aspnetapp
         resources:
           requests:
             memory: "80Mi"
