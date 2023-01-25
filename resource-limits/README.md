@@ -3,13 +3,19 @@
 Limit memory and CPU for an app.
 
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/richlander/dotnet-k8s/main/resource-limits/dotnet-resource-limits.yaml
+kubectl apply -f https://raw.githubusercontent.com/richlander/dotnet-k8s/main/resource-limits/resource-limits.yaml
 ```
 
 If you've cloned the repo, the local file can be applied instead:
 
 ```bash
-kubectl apply -f dotnet-resource-limits.yaml
+kubectl apply -f resource-limits.yaml
+```
+
+See resource limits for the deployment.
+
+```bash
+kubectl describe deployment
 ```
 
 Create a proxy to the service. View the sample app at http://localhost:8080/.
@@ -18,20 +24,8 @@ Create a proxy to the service. View the sample app at http://localhost:8080/.
 kubectl port-forward service/hello-dotnet 8080:80
 ```
 
-Check performance metrics:
+Resources can be deleted using the following pattern:
 
 ```bash
-kubectl top pod
-```
-
-Note: `top` requires installing the [metrics server](https://github.com/kubernetes-sigs/metrics-server), which can be done via [minikube addons](https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/).
-
-View the active resources that have been deployed and then delete them.
-
-```bash
-kubectl get pod
-kubectl get service
-kubectl get deployment
-kubectl delete service hello-dotnet
-kubectl delete deployment hello-dotnet
+kubectrl delete -f https://raw.githubusercontent.com/richlander/dotnet-k8s/main/resource-limits/resource-limits.yaml
 ```

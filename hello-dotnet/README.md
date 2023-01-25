@@ -1,23 +1,23 @@
 # Single node app
 
-Host a .NET sample with a few quick commands.
-
-```bash
-kubectl create deployment hello-dotnet --image mcr.microsoft.com/dotnet/samples:aspnetapp
-kubectl expose deployment hello-dotnet --type=NodePort --port=80
-kubectl port-forward service/hello-dotnet 8080:80
-```
-
-Alternatively, apply a ready-made manifest to create the required resources.
+Host an app by applying a sample manifest (deployment and service).
 
 ```bash
 kubectl apply -f https://raw.githubusercontent.com/richlander/dotnet-k8s/main/hello-dotnet/hello-dotnet.yaml
 ```
 
-If you've cloned the repo, the local file can be applied instead:
+Or use the manifest directly if you've cloned the repo:
 
 ```bash
 kubectl apply -f hello-dotnet.yaml
+```
+
+Alternatively, you can do the same with a few quick commands
+
+```bash
+kubectl create deployment hello-dotnet --image mcr.microsoft.com/dotnet/samples:aspnetapp
+kubectl expose deployment hello-dotnet --type=NodePort --port=80
+kubectl port-forward service/hello-dotnet 8080:80
 ```
 
 Create a proxy to the service. View the sample app at http://localhost:8080/.
@@ -34,4 +34,10 @@ kubectl get service
 kubectl get deployment
 kubectl delete service hello-dotnet
 kubectl delete deployment hello-dotnet
+```
+
+Alternatively, you can delete the resources with the following pattern (remote URL or local manifest).
+
+```bash
+kubectl delete -f https://raw.githubusercontent.com/richlander/dotnet-k8s/main/hello-dotnet/hello-dotnet.yaml
 ```
