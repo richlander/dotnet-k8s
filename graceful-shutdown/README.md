@@ -11,9 +11,9 @@ app.Lifetime.ApplicationStopping.Register( () =>
     cancellation.Cancel();
 });
 
-// This API demonstrates how to integrade cancellation
+// This API demonstrates how to use task cancellation
 // to support graceful container shutdown via SIGTERM.
-// The implementation itself is an analog for a real method.
+// The method itself is an example and not useful.
 app.MapGet("/Delay/{value}", async (int value) =>
 {
     try
