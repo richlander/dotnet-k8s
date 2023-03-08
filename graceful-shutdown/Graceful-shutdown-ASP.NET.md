@@ -36,6 +36,19 @@ app.Map("/longop/{value}", async Task<Results<StatusCodeHttpResult, Ok<String>>>
 
 The same technique can be applied to traditional (controller-based) ASP.NET code, you just need to add `IHostApplicationLifetime` parameter to controller method(s) that might take long time to execute, construct a linked `CancellationToken`, and then use it inside the request method.
 
+You can also change ASP.NET behavior so that the default `CancellationToken` passed to your request handlers *does get activated* when `ApplicationStopping` event occurs. This code snipped (a custom middleware) will do it:
+
+```csharp
+app.Use((httpContext, next) =>
+{
+    var hostLifetime = httpContext.RequestServices.GetRequiredService<IHostApplicationLifetime>();
+    var originalCt = httpContext.RequestAborted;
+    var combinedCt = CancellationTokenSource.CreateLinkedTokenSource(originalCt, hostLifetime.ApplicationStopping).Token;
+    httpContext.RequestAborted = combinedCt;
+    return next(httpContext);
+});
+```
+
 
 ## Background services
 
