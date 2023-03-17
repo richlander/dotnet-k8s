@@ -49,6 +49,54 @@ app.Use((httpContext, next) =>
 });
 ```
 
+## Adding a shutdown delay
+
+Services that handle requests coming from [Kubernetes ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/) may run into an issue where they continue to receive new requests *after* Kubernetes requests them to shut down via `SIGTERM` signal. This usually lasts for only a few seconds, but if the service shuts down immediately and these requests fail, it puts a burden on the client to retry them and the overall service responsiveness goes down.
+
+The reason for this behavior is that ingress and Kubernetes control plane are separate entities, operating independently. When Kubernetes decides to shut down some pod(s), there is inevitable delay between control plane taking a pod out of Service backend, and ingress "noticing" that this has happened and actually stopping routing requests to that pod. So it is useful to introduce some delay between the time the pod receivers `SIGTERM` signal, and the time when it stops responding to requests. Here is how you can make it happen. First, introduce a new kind of `CancellationTokenSource` for the delayed `CancellationToken` activation:
+
+```csharp
+public class DelayedLinkedTokenSource
+{
+    private CancellationTokenSource _cts;
+
+    public DelayedLinkedTokenSource(CancellationToken source, TimeSpan delay)
+    {
+        _cts = new CancellationTokenSource();
+        source.Register(() => _cts.CancelAfter(delay));
+    }
+
+    public CancellationToken Token => _cts.Token;
+}
+
+public class ApplicationStoppingTokenSource: DelayedLinkedTokenSource
+{
+    public static readonly TimeSpan ShutdownDelay = TimeSpan.FromSeconds(3); // Change the delay as appropriate for your service.
+
+    public ApplicationStoppingTokenSource(IHostApplicationLifetime hostLifetime) :
+        base(hostLifetime.ApplicationStopping, ShutdownDelay)
+    { }
+}
+```
+
+Add `ApplicationStoppingTokenSource` as a singleton service to the dependency container:
+
+```csharp
+builder.Services.AddSingleton<ApplicationStoppingTokenSource>();
+```
+
+Then, in your request handlers, create the effective `CancellationToken` [as described above](#long-running-network-requests), but replace `hostingLifetime.ApplicationStopping` with `ApplicationStoppingTokenSource`:
+
+```csharp
+app.Map("/longop/{value}", async Task<Results<StatusCodeHttpResult, Ok<String>>> (int value, CancellationToken ct, [FromServices] ApplicationStoppingTokenSource appStoppingTS) =>
+{
+    var effectiveCt = CancellationTokenSource.CreateLinkedTokenSource(ct, appStoppingTS.Token).Token;
+
+    // Rest of the request handler code unchanged
+}
+```
+
+As a result, the `effectiveCt` will not become active until `ApplicationStoppingTokenSource.ShutdownDelay` seconds after `SIGTERM` is received.
 
 ## Background services
 
